@@ -1,0 +1,23 @@
+#options {
+	margin: 50px 20%;
+	text-align: center;
+}
+
+#resetButton {
+	position: absolute;
+	top: 150px;
+	left: 50%;
+}
+
+#saveButton {
+	position: absolute;
+	top: 150px;
+	left: 45%;
+	z-index: -1;
+}
+
+#status {
+	position: absolute;
+	top: 100px;
+	left: 46%;
+}
