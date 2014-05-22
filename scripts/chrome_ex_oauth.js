@@ -40,7 +40,7 @@ function ChromeExOAuth(url_request_token, url_auth_token, url_access_token,
       }
     }
   }
-}
+};
 
 /*******************************************************************************
  * PUBLIC API METHODS
@@ -77,12 +77,11 @@ ChromeExOAuth.initBackgroundPage = function(oauth_config) {
     if (changeInfo.url &&
         changeInfo.url.substr(0, url_match.length) === url_match &&
         changeInfo.url != tabs[tabId] &&
-        window.chromeExOAuthRequestingAccess == false) {
-    	
-    	chrome.tabs.create({ 'url' : changeInfo.url }, function(tab) {
-            tabs[tab.id] = tab.url;
-            chrome.tabs.remove(tabId);
-        });
+        window.chromeExOAuthRequestingAccess == false) {  	
+          chrome.tabs.create({ 'url' : changeInfo.url }, function(tab) {
+              tabs[tab.id] = tab.url;
+              chrome.tabs.remove(tabId);
+          });
     }
   });
 
@@ -164,10 +163,9 @@ ChromeExOAuth.prototype.connect = function(url, callback, opt_params, onError, o
 	var body = opt_params && opt_params['body'] || null;
 	var params = opt_params && opt_params['parameters'] || {};
 	var headers = opt_params && opt_params['headers'] || {};
-
 	var signedUrl = this.signURL(url, method, params);
 	
-	ChromeExOAuth.sendRequest(method, signedUrl, headers, body,"connect", function (xhr) {
+	ChromeExOAuth.sendRequest(method, signedUrl, headers, body, "connect", function (xhr) {
 		xhr.onprogress = function() {
 			callback(xhr.responseText, xhr);
 		};
@@ -286,16 +284,16 @@ ChromeExOAuth.fromConfig = function(oauth_config) {
  * chrome_ex_oauth.html.
  */
 ChromeExOAuth.initCallbackPage = function() {
-	console.log("initCall");
   var background_page = chrome.extension.getBackgroundPage();
   var oauth_config = background_page.chromeExOAuthConfig;
   var oauth = ChromeExOAuth.fromConfig(oauth_config);
   background_page.chromeExOAuthRedirectStarted = true;
+    
   oauth.initOAuthFlow(function (token, secret) {
     background_page.chromeExOAuthOnAuthorize(token, secret);
     background_page.chromeExOAuthRedirectStarted = false;
-    chrome.tabs.getSelected(null, function (tab) {
-      chrome.tabs.remove(tab.id);
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.remove(tabs[0].id);
     });
   });
 };
@@ -312,11 +310,12 @@ ChromeExOAuth.initCallbackPage = function() {
  */
 ChromeExOAuth.sendRequest = function(method, url, headers, body, callbackMethod, callback, onError, onLoadend) {
   var xhr = new XMLHttpRequest();
-  /*
+  
   xhr.onreadystatechange = function(data) {
     callback(xhr, data);
   };
-  */
+  
+ 
   xhr.open(method, url, true);
   if (headers) {
     for (var header in headers) {
@@ -325,15 +324,16 @@ ChromeExOAuth.sendRequest = function(method, url, headers, body, callbackMethod,
       }
     }
   }
+  /*
   if (callbackMethod == "default") {
 	  xhr.onload = function() {
 		  callback(xhr);
 	  };
+      
   } else if(callbackMethod == "connect") {
-	  callback(xhr);  
-	  onError(xhr);
-	  onLoadend(xhr);
+      callback(xhr);
   }
+  */
   
   xhr.send(body);
 };
@@ -597,7 +597,7 @@ ChromeExOAuth.prototype.getAccessToken = function(oauth_token, oauth_verifier,
     });
 
     var onToken = ChromeExOAuth.bind(this.onAccessToken, this, callback);
-    ChromeExOAuth.sendRequest("GET", result.signed_url, null, null,"default", onToken);
+    ChromeExOAuth.sendRequest("GET", result.signed_url, null, null, "default", onToken);
   }
 };
 

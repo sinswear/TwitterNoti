@@ -1,12 +1,12 @@
 function save() {
     var retweetWays = document.getElementById("RT").value;
-    localStorage.setItem("Retweet_Ways", retweetWays);
+    localStorage.setItem("display", retweetWays);
     if (!retweetWays) return;
 	  statusUpdate("Options saved.");
 }
 
 function reset() {
-  localStorage.setItem("Retweet_Ways", 1);
+  localStorage.setItem("display", 1);
   statusUpdate("Reset completed.");
 }
 
@@ -19,7 +19,7 @@ function statusUpdate(text) {
 }
 
 function restore() {
-	var retweet_ways = localStorage.getItem("Retweet_Ways");
+	var retweet_ways = localStorage.getItem("display");
 	if (!retweet_ways) return;
 	var retweetOption = document.getElementById("RT");
 	retweetOption.value = retweet_ways;
