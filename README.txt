@@ -1,5 +1,5 @@
 Project: Twitter Noti
-Version: 1.1.7.9
+Version: 1.1.7.10
 ===============
 This is a simple notification for Twitter.
 

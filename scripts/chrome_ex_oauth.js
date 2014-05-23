@@ -34,13 +34,13 @@ function ChromeExOAuth(url_request_token, url_auth_token, url_access_token,
       "chrome_ex_oauth.html";
   this.auth_params = {};
   if (opt_args && opt_args['auth_params']) {
-    for (key in opt_args['auth_params']) {
+    for (var key in opt_args['auth_params']) {
       if (opt_args['auth_params'].hasOwnProperty(key)) {
         this.auth_params[key] = opt_args['auth_params'][key];
       }
     }
   }
-};
+}
 
 /*******************************************************************************
  * PUBLIC API METHODS

@@ -1,3 +1,8 @@
+/**
+ * Stream process
+ * ---------------
+ */
+
 var oauth = ChromeExOAuth.initBackgroundPage({
 	  'request_url': 'https://api.twitter.com/oauth/request_token',
 	  'authorize_url': 'https://api.twitter.com/oauth/authorize',
@@ -7,14 +12,16 @@ var oauth = ChromeExOAuth.initBackgroundPage({
 });
 
 var numStream;
-/* Init to call a delay connectToStream() */
-window.onload = function() {
+var preDataLength;
+
+window.onload = init();
+
+/* Prepare to connect a stream api. */
+function init() {
     numStream = 0;
+    preDataLength = 1;
     connectToStream();
 }
-
-function run() {/* Reload page */};
-
 
 /* Connect to the stream. */
 function connectToStream() {
@@ -65,7 +72,7 @@ function onStreamEnd(xhr) {
 }
 
 chrome.alarms.onAlarm.addListener(function(alarm) {
-    run();
+    init();
 });
 
 
@@ -73,7 +80,6 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
  * Data process
  * ------------------
  */
-var preDataLength = 1;
 
 /* Detect new message from the stream. */
 function getTweets(text, xhr) {
@@ -126,72 +132,6 @@ function htmlParser(text) {
 	return tweetText;
 }
 
-/* Convert Date to display form. */
-function parseDateString(date) {
-	var hour = date.getHours();
-	var minute = date.getMinutes();
-	var day = date.getDate();
-	var month = date.getMonth() + 1;
-	var daySeperater = "AM";
-
-	if (hour >= 12) {
-		daySeperater = "PM";
-	}
-
-	if (hour > 12) {
-		hour = hour - 12;
-	}
-	if (hour == 0) {
-		hour = 12;
-	}
-
-	if (minute < 10) {
-		minute = "0" + minute;
-	}
-
-	switch(month) {
-		case 1:
-			month = "Jan";
-			break;
-		case 2:
-			month = "Feb";
-			break;
-		case 3:
-			month = "Mar";
-			break;
-		case 4:
-			month = "Apr";
-			break;
-		case 5:
-			month = "May";
-			break;
-		case 6:
-			month = "Jun";
-			break;
-		case 7:
-			month = "Jul";
-			break;
-		case 8:
-			month = "Aug";
-			break;
-		case 9:
-			month = "Sep";
-			break;
-		case 10:
-			month = "Oct";
-			break;
-		case 11:
-			month = "Nov";
-			break;
-		case 12:
-			month = "Dec";
-			break;
-	}
-
-	var newDate = hour + ":" + minute + " " + daySeperater + " - " + day + " " + month;
-	return newDate;
-}
-
 /**
  * Notification
  * -------------
@@ -204,6 +144,7 @@ function notify(data) {
 	var isImage = (!!data.entities.media && data.entities.media[0].type == "photo");
 	var id = data.id_str;
 	var date = new Date(data.created_at);
+    var time = date.toLocaleTimeString();
 	
 	// Detect the tweet is a retweet or not.
 	if (isRetweet) {
@@ -220,7 +161,7 @@ function notify(data) {
 			title: tweet.user.name,
 			message: tweetText,
 			iconUrl: tweet.user.profile_image_url_https.replace("normal", "bigger"),
-			contextMessage: parseDateString(date),
+			contextMessage: time.substring(0, time.lastIndexOf(":")) + " - " + date.toLocaleDateString(),
 			isClickable: decideClickable(tweet.entities.media, tweet.entities.urls[0])
 	};
 	
@@ -238,7 +179,7 @@ function changeOptions(data, tweet, basicOptions, isImage, isRetweet) {
 
 	if (isImage) {
 		options.type = "image";
-		options.imageUrl = tweet.entities.media[0].media_url_https;		
+		options.imageUrl = tweet.entities.media[0].media_url_https + ":medium";		
 	}
 	
 	if (isRetweet) {
